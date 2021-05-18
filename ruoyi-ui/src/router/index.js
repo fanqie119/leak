@@ -94,6 +94,19 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/exam',
+      component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'question/data/:examId(\\d+)',
+        component: (resolve) => require(['@/views/leak/exam/question'], resolve),
+        name: 'Question',
+        meta: { title: '问题信息', icon: '' }
+      }
+    ]
+  },
+  {
     path: '/job',
     component: Layout,
     hidden: true,

@@ -108,6 +108,13 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="试卷id" align="center" prop="examId" v-if="false"/>
       <el-table-column label="试卷名称" align="center" prop="examName" />
+      <el-table-column label="试卷名称" align="center" :show-overflow-tooltip="true">
+              <template slot-scope="scope">
+                <router-link :to="'/exam/question/data/' + scope.row.examId" class="link-type">
+                  <span>{{ scope.row.examName }}</span>
+                </router-link>
+              </template>
+      </el-table-column>
       <el-table-column label="试卷类型" align="center" prop="type" :formatter="typeFormat" />
 <!--
       <el-table-column label="模板文件路径" align="center" prop="route" />

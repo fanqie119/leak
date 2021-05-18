@@ -11,13 +11,14 @@
         />
 -->
       </el-form-item>
-      <el-form-item label="试卷名称" prop="examName">
+      <el-form-item label="试卷名称" prop="examName" >
         <el-input
           v-model="queryParams.examName"
           placeholder="请输入试卷名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
+          :disabled="true"
         />
       </el-form-item>
       <el-form-item label="一级题号" prop="number1">
@@ -219,25 +220,19 @@
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+
 
     <!-- 添加或修改问题信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-<!--
-        <el-form-item label="试卷id" prop="examId">
+
+        <el-form-item label="试卷id" prop="examId" v-if="false">
           <el-input v-model="form.examId" placeholder="请输入试卷id" />
         </el-form-item>
-        <el-form-item label="试卷名称" prop="examName">
+        <el-form-item label="试卷名称" prop="examName" v-if="false">
           <el-input v-model="form.examName" placeholder="请输入试卷名称" />
         </el-form-item>
--->
+
         <el-form-item label="一级题号" prop="number1">
           <el-input v-model="form.number1" placeholder="请输入一级题号" />
         </el-form-item>
@@ -306,6 +301,7 @@
 
 <script>
 import { listQuestion, getQuestion, delQuestion, addQuestion, updateQuestion, exportQuestion } from "@/api/leak/question";
+import { getExam } from "@/api/leak/exam";
 import Editor from '@/components/Editor';
 
 export default {
@@ -339,8 +335,6 @@ export default {
       deletedOptions: [],
       // 查询参数
       queryParams: {
-        pageNum: 1,
-        pageSize: 10,
         examId: undefined,
         examName: undefined,
         number1: undefined,
@@ -368,6 +362,8 @@ export default {
     };
   },
   created() {
+    const examId = this.$route.params && this.$route.params.examId;
+    this.getExam(examId);
     this.getList();
     this.getDicts("question_type").then(response => {
       this.typeOptions = response.data;
@@ -377,9 +373,21 @@ export default {
     });
   },
   methods: {
+   /** 查询试卷信息详细 */
+      getExam(examId) {
+        getExam(examId).then(response => {
+          console.log(response)
+          this.queryParams.examId = response.data.examId;
+          this.queryParams.examName = response.data.examName;
+          this.defaultExamName = response.data.examName;
+          this.getList();
+        });
+      },
+
     /** 查询问题信息列表 */
     getList() {
       this.loading = true;
+      this.queryParams.examId = this.$route.params && this.$route.params.examId;
       listQuestion(this.queryParams).then(response => {
         this.questionList = response.rows;
         this.total = response.total;
@@ -424,7 +432,6 @@ export default {
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
       this.getList();
     },
     /** 重置按钮操作 */
@@ -458,6 +465,10 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          console.log(this.form);
+          console.log(this.$route.params && this.$route.params.examId);
+          this.form.examId = this.$route.params && this.$route.params.examId;
+          this.form.examName = this.queryParams.examName;
           if (this.form.id != null) {
             updateQuestion(this.form).then(response => {
               this.msgSuccess("修改成功");
@@ -465,7 +476,6 @@ export default {
               this.getList();
             });
           } else {
-
             addQuestion(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;

@@ -37,7 +37,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         lqw.eq(id != null, Question::getId, id);
         lqw.eq(true, Question::getDeleted, DeletedStatus.VALID.getCode());
         Question question = null;
-        List<Question> list = this.list();
+        List<Question> list = this.list(lqw);
         if (list.size()>0){
             question = list.get(0);
         }
