@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.leak.mapper.QuestionMapper">
+
+    <resultMap type="com.ruoyi.leak.domain.Question" id="QuestionResult">
+        <result property="id" column="id"/>
+        <result property="examId" column="exam_id"/>
+        <result property="examName" column="exam_name"/>
+        <result property="number1" column="number1"/>
+        <result property="number2" column="number2"/>
+        <result property="type" column="type"/>
+        <result property="description" column="description"/>
+        <result property="answer" column="answer"/>
+        <result property="value" column="value"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="labelId" column="label_id"/>
+        <result property="labelName" column="label_name"/>
+        <result property="route" column="route"/>
+        <result property="sort" column="sort"/>
+        <result property="remark" column="remark"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+
+</mapper>
