@@ -49,4 +49,12 @@ public interface IQuestionService extends IService<Question> {
 	 * @return
 	 */
 	Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+
+	/**
+	 * 根据ids列表查询问题信息
+	 * @param ids
+	 * @return
+	 */
+    List<Question> selectByIds(Long[] ids);
 }

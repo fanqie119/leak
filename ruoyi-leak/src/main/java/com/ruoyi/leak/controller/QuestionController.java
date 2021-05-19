@@ -2,6 +2,7 @@ package com.ruoyi.leak.controller;
 
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.data.Includes;
+import com.deepoove.poi.util.PoitlIOUtils;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -13,6 +14,7 @@ import com.ruoyi.leak.bo.QuestionAddBo;
 import com.ruoyi.leak.bo.QuestionEditBo;
 import com.ruoyi.leak.bo.QuestionModel;
 import com.ruoyi.leak.bo.QuestionQueryBo;
+import com.ruoyi.leak.domain.Question;
 import com.ruoyi.leak.service.IQuestionService;
 import com.ruoyi.leak.vo.QuestionVo;
 import io.swagger.annotations.Api;
@@ -22,6 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,7 +132,7 @@ public class QuestionController extends BaseController {
     }
 
 
-    @ApiOperation("导出word")
+    @ApiOperation("导出word测试")
     @GetMapping("/export/word/test")
     public AjaxResult<Void> testExportWord() throws Exception {
         QuestionQueryBo bo = new QuestionQueryBo();
@@ -140,5 +147,52 @@ public class QuestionController extends BaseController {
         XWPFTemplate template = XWPFTemplate.compile("main.docx").render(datas);
         template.writeToFile("out_example_resume.docx");
         return toAjax(1);
+    }
+
+    @ApiOperation("导出word")
+    @PreAuthorize("@ss.hasPermi('leak:question:export:word')")
+    @Log(title = "导出word" , businessType = BusinessType.EXPORT)
+    @GetMapping("/export/word/{ids}")
+    public AjaxResult<Void> exportWord(@PathVariable Long[] ids,HttpServletResponse response) throws Exception {
+
+        if(ids.length==0){
+            return toAjax(0);
+        }
+        List<Question> questionList = iQuestionService.selectByIds(ids);
+        List<QuestionModel> questionDataList = new ArrayList<>();
+        for (Question question : questionList){
+            questionDataList.add(new QuestionModel(question.getDescription()));
+        }
+
+        //构建word
+        Map<String, Object> datas = new HashMap<>();
+        datas.put("nested", Includes.ofLocal("sub.docx").setRenderModel(questionDataList).create());
+        XWPFTemplate template = XWPFTemplate.compile("main.docx").render(datas);
+
+        //输出流
+//        response.setContentType("application/octet-stream");
+//        response.setHeader("Content-disposition", "attachment;filename=\"" + "out_leak.docx" + "\"");
+//        // HttpServletResponse response
+//        OutputStream out = response.getOutputStream();
+//        BufferedOutputStream bos = new BufferedOutputStream(out);
+//        template.write(bos);
+//        bos.flush();
+//        out.flush();
+//        PoitlIOUtils.closeQuietlyMulti(template, bos, out);
+        String fileName = "out_leak.docx";
+        try {
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("application/octet-stream");
+            ServletOutputStream out = response.getOutputStream();
+            template.write(out);
+            out.flush();
+            template.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

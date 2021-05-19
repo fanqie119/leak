@@ -175,6 +175,18 @@
         >导出</el-button>
       </el-col>
 -->
+
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="el-icon-download"
+          size="mini"
+          @click="handleExportWord"
+          v-hasPermi="['leak:question:export:word']"
+        >导出word</el-button>
+      </el-col>
+
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -219,8 +231,6 @@
         </template>
       </el-table-column>
     </el-table>
-
-
 
     <!-- 添加或修改问题信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -300,7 +310,7 @@
 </template>
 
 <script>
-import { listQuestion, getQuestion, delQuestion, addQuestion, updateQuestion, exportQuestion } from "@/api/leak/question";
+import { listQuestion, getQuestion, delQuestion, addQuestion, updateQuestion, exportQuestion, exportQuestionToWord } from "@/api/leak/question";
 import { getExam } from "@/api/leak/exam";
 import Editor from '@/components/Editor';
 
@@ -497,6 +507,29 @@ export default {
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
+        })
+    },
+
+    /** 导出word按钮操作 */
+    handleExportWord() {
+      const ids = this.ids;
+      this.$confirm('是否确认导出所选问题信息数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return exportQuestionToWord(ids);
+        }).then(response => {
+          console.log(response)
+          debugger
+          this.msgSuccess("导出成功");
+          const blobUrl = window.URL.createObjectURL(response);
+          const title = 'out_leak.docx';
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.download = title;
+          a.href = blobUrl;
+          a.click();
         })
     },
     /** 导出按钮操作 */

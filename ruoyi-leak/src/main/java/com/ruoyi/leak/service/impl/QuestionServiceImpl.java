@@ -16,10 +16,7 @@ import com.ruoyi.leak.mapper.QuestionMapper;
 import com.ruoyi.leak.vo.QuestionVo;
 import com.ruoyi.leak.service.IQuestionService;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -114,5 +111,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             //TODO 做一些业务上的校验,判断是否需要校验
         }
         return this.removeByIds(ids);
+    }
+
+    @Override
+    public List<Question> selectByIds(Long[] ids) {
+        return this.listByIds(Arrays.asList(ids));
     }
 }

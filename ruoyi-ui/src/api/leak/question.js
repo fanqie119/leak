@@ -51,3 +51,12 @@ export function exportQuestion(query) {
     params: query
   })
 }
+
+// 导出问题信息到word
+export function exportQuestionToWord(ids) {
+  return request({
+    url: '/leak/question/export/word/'+ ids,
+    method: 'get',
+    responseType: 'blob'
+  })
+}
